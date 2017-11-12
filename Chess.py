@@ -1,13 +1,19 @@
 import sys;
-from Piece import *;
+from Pieces import *;
 
 
 # variable instantiation
-board = [];
+board = [[ Rook("black"), Kight("black"), Bishop("black"), Queen("black"), King("black"), Bishop("black"), Kight("black"), Rook("black")],
+		 [ Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black")],
+		 [ None, None, None, None, None, None, None, None],
+		 [ None, None, None, None, None, None, None, None],
+		 [ None, None, None, None, None, None, None, None],
+		 [ None, None, None, None, None, None, None, None],
+		 [ Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white")],
+		 [ Rook("white"), Kight("white"), Bishop("white"), Queen("white"), King("white"), Bishop("white"), Kight("white"), Rook("white")]];
 white_check = False;
 black_check = False;
-white_king_pos;
-black_king_pos;
+
 
 # Initialize Game Stats and Board
 def initialize():
@@ -15,21 +21,20 @@ def initialize():
 	black_check = False;
 	white_king_pos = (0,4);
 	black_king_pos = (7,4);
-	black_king_pos;
 	board = [[ Rook("black"), Kight("black"), Bishop("black"), Queen("black"), King("black"), Bishop("black"), Kight("black"), Rook("black")],
 			 [ Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black")],
 			 [ None, None, None, None, None, None, None, None],
 			 [ None, None, None, None, None, None, None, None],
 			 [ None, None, None, None, None, None, None, None],
 			 [ None, None, None, None, None, None, None, None],
-			 [ Rook("white"), Kight("white"), Bishop("white"), Queen("white"), King("white"), Bishop("white"), Kight("white"), Rook("white")],
-			 [ Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white")]]
+			 [ Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white")],
+			 [ Rook("white"), Kight("white"), Bishop("white"), Queen("white"), King("white"), Bishop("white"), Kight("white"), Rook("white")]];
 	
 
 # Display the board and Stats
 def display_board():
-	for i in range(0,7):
-		for j in range(0,7):
+	for i in range(0,8):
+		for j in range(0,8):
 			print(board[i][j]);
 
 
@@ -47,7 +52,8 @@ def analyze_check(self):
 
 # Main Process
 def main():
-	while();
+	initialize();
+	display_board();
 
 
 

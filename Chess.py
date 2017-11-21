@@ -5,6 +5,7 @@ from Pieces import *;
 # Initialize Game Stats and Board
 def initialize():
 	player_team = "white";
+	enemy_team = "black";
 	white_check = False;
 	black_check = False;
 	
@@ -27,8 +28,7 @@ def initialize():
 # Display the board and Stats
 def display_board():
 	for i in range(0,8):
-		for j in range(0,8):
-			print(board[i][j]);
+		print(board[i]);
 
 
 # Check for jepordy/check
@@ -43,11 +43,27 @@ def analyze_check(self):
 				black_check = True;
 
 
+# check input to make sure the moves enetered are valid
+def validate_input(self,string):
+	if(not(string.split().length == 2)):
+		print("Invalid move format entered, please retry.");
+		return False;
+	col = string.lower().split()[0];
+	row = string.lower().split()[1];
+	if(ord(col) < 97 or ord(col) > 104):
+		print("Invalid move format entered, please retry.");
+		return False;
+	if(int(row) < 1 or int(row) > 8):
+		print("Invalid move format entered, please retry.");
+		return False;
+	return True;
+	
+
 # convert move from string-form (a4, b3, etc) to tuple coordinates
 # this function assumes the string-form is a valid entry
 def get_coordinates(self,string):
-	row = string.split()[0];
-	col = string.split()[1];
+	col = string.lower().split()[0];
+	row = string.lower().split()[1];
 	
 
 # Check if a move is valid, and return "" if move is good (check/checkmate is checked afterwards)
@@ -100,12 +116,39 @@ def checkmate(self):
 	if(player_team == "white" and black_check == True and board[black_king_pos[0]][black_king_pos[1]].get_moves(board,black_king_pos).length == 0):
 		print( "Checkmate! You Win!");
 		return True;
+	if(player_team == "black" and white_check == True and board[white_king_pos[0]][white_king_pos[1]].get_moves(board,white_king_pos).length == 0):
+		print( "Checkmate! You Win!");
+		return True;
+	if(player_team == "white" and white_check == True and board[white_king_pos[0]][white_king_pos[1]].get_moves(board,white_king_pos).length == 0):
+		print( "Checkmate! You Lose!");
+		return True;
+	if(player_team == "black" and black_check == True and board[black_king_pos[0]][black_king_pos[1]].get_moves(board,black_king_pos).length == 0):
+		print( "Checkmate! You Lose!");
+		return True;
+	return False;
 
 
 # Main Process
 def main():
+	endgame = False;
 	initialize();
 	display_board();
+	while(not endgame):
+		print("moves should be entered in traditional form: A# B#");
+		player_move = input("Please enter your move:");
+		if(validate_input(player_move)):
+			continue;
+		if(not move_piece(player)):
+			continue;
+		
+		if(checkmate()):
+			endgame = True;
+			break;
+		
+		# TODO: run enemy AI move
+		
+		if((white_check and player_team == "white") or (black_check and player_team == "black")):
+			print("Check!")
 
 
 # Call Main

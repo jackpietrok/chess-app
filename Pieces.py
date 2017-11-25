@@ -1,5 +1,4 @@
 import sys;
-#from numpy import *;
 
 class Piece:
 	

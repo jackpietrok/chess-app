@@ -98,6 +98,8 @@ def move_piece(self,pos1,pos2):
 	if(validation != "Move successful"):
 		print(validation);
 		return False;
+	board[pos2[0]][pos2[1]] = board[pos1[0]][pos1[1]];
+	board[pos2[0]][pos2[1]] = None;
 	analyze_check();
 	
 	# check for invalid move due to putting oneself in check; revert move if necessary
@@ -128,6 +130,32 @@ def checkmate(self):
 	return False;
 
 
+# make a random move of those available
+# move returned is in form ((row1,col1),(row2,col2))
+def get_random_move(self,team,board):
+	pieces = [];
+	for i in range(8):
+		for j in range(8):
+			if(board[i][j] != None and board[i][j].team == team and board[i][j].get_moves(board,(i,j)).length > 0):
+				pieces += (i,j);
+	rand_piece = randint(0,pieces.length - 1);
+	moves = board[pieces[rand_piece][0]][pieces[rand_piece][1]].get_moves(board,(i,j));
+	
+	move_arr = [];
+	for x in range(0,moves.length):
+		piece_taken = board[moves[x][0]][moves[x][1]];
+		board[moves[x][0]][moves[x][1]] = board[pieces[rand_piece][0]][pieces[rand_piece][1]];
+		board[pieces[rand_piece][0]][pieces[rand_piece][1]] = None;
+		analyze_check();
+		if(not ((enemy_team == "white" and white_check) or (enemy_team == "black" and black_check))):
+			move_arr += moves[x];
+		board[pieces[rand_piece][0]][pieces[rand_piece][1]] = board[moves[x][0]][moves[x][1]];
+		board[moves[x][0]][moves[x][1]] = piece_taken;
+	
+	rand_move = randint(0,move_arr.length);
+	return ((pieces[rand_piece][0] , pieces[rand_piece][1]) , move_arr[rand_move]);
+
+
 # Main Process
 def main():
 	endgame = False;
@@ -145,7 +173,15 @@ def main():
 			endgame = True;
 			break;
 		
-		# TODO: run enemy AI move
+		# Enemy move function goes here
+		enemy_move = get_random_move(enemy_team,board);
+		
+		board[enemy_move[1][0]][enemy_move[1][1]] = board[enemy_move[0][0]][enemy_move[0][1]];
+		board[enemy_move[0][0]][enemy_move[0][1]] = None;
+		
+		if(checkmate()):
+			endgame = True;
+			break;
 		
 		if((white_check and player_team == "white") or (black_check and player_team == "black")):
 			print("Check!")

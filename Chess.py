@@ -26,13 +26,13 @@ def initialize():
 	
 
 # Display the board and Stats
-def display_board():
+def display_board(board):
 	for i in range(0,8):
 		print(board[i]);
 
 
 # Check for jepordy/check
-def analyze_check(self):
+def analyze_check():
 	white_check = False;
 	black_check = False;
 	for x in range(0,7):
@@ -44,30 +44,40 @@ def analyze_check(self):
 
 
 # check input to make sure the moves enetered are valid
-def validate_input(self,string):
-	if(not(string.split().length == 2)):
+def validate_input(string):
+	if(not(len(string.split(" ")) == 2)):
 		print("Invalid move format entered, please retry.");
 		return False;
-	col = string.lower().split()[0];
-	row = string.lower().split()[1];
-	if(ord(col) < 97 or ord(col) > 104):
-		print("Invalid move format entered, please retry.");
-		return False;
-	if(int(row) < 1 or int(row) > 8):
-		print("Invalid move format entered, please retry.");
-		return False;
+	
+	for x in range(2):
+		str_move = string.split(" ")[x];
+		if(not(len(str_move.split()) == 2)):
+			print("Invalid move format entered, please retry.");
+			return False;
+		col = str_move.lower().split()[0];
+		row = str_move.lower().split()[1];
+		if(ord(col) < 97 or ord(col) > 104):
+			print("Invalid move format entered, please retry.");
+			return False;
+		if(int(row) < 1 or int(row) > 8):
+			print("Invalid move format entered, please retry.");
+			return False;
+		
 	return True;
 	
 
 # convert move from string-form (a4, b3, etc) to tuple coordinates
 # this function assumes the string-form is a valid entry
-def get_coordinates(self,string):
+def get_coordinates(string):
 	col = string.lower().split()[0];
 	row = string.lower().split()[1];
+	col_index = ord(col) - 97;
+	row_index = 8 - (int(row));
+	return (row_index,col_index);
 	
 
 # Check if a move is valid, and return "" if move is good (check/checkmate is checked afterwards)
-def validate_move(self,pos1,pos2):
+def validate_move(pos1,pos2):
 	piece = board[pos1[0]][pos1[1]];
 	if(piece == None):
 		return "No piece exists at " + pos1 + "!";
@@ -80,7 +90,7 @@ def validate_move(self,pos1,pos2):
 
 
 # Revert the last move made (by either team)
-def revert_last_move(self):
+def revert_last_move():
 	if(last_move == None):
 		print("ERROR: no last move");
 		return;
@@ -91,7 +101,7 @@ def revert_last_move(self):
 
 
 # Attempt to move a piece, and return boolean move success
-def move_piece(self,pos1,pos2):
+def move_piece(pos1,pos2):
 	
 	# check for valid move
 	validation = validate_move(pos1,pos2);
@@ -114,17 +124,17 @@ def move_piece(self,pos1,pos2):
 
 # check for checkmate / stalemate
 # TODO : handle stalemate
-def checkmate(self):
-	if(player_team == "white" and black_check == True and board[black_king_pos[0]][black_king_pos[1]].get_moves(board,black_king_pos).length == 0):
+def checkmate():
+	if(player_team == "white" and black_check == True and len(board[black_king_pos[0]][black_king_pos[1]].get_moves(board,black_king_pos)) == 0):
 		print( "Checkmate! You Win!");
 		return True;
-	if(player_team == "black" and white_check == True and board[white_king_pos[0]][white_king_pos[1]].get_moves(board,white_king_pos).length == 0):
+	if(player_team == "black" and white_check == True and len(board[white_king_pos[0]][white_king_pos[1]].get_moves(board,white_king_pos)) == 0):
 		print( "Checkmate! You Win!");
 		return True;
-	if(player_team == "white" and white_check == True and board[white_king_pos[0]][white_king_pos[1]].get_moves(board,white_king_pos).length == 0):
+	if(player_team == "white" and white_check == True and len(board[white_king_pos[0]][white_king_pos[1]].get_moves(board,white_king_pos)) == 0):
 		print( "Checkmate! You Lose!");
 		return True;
-	if(player_team == "black" and black_check == True and board[black_king_pos[0]][black_king_pos[1]].get_moves(board,black_king_pos).length == 0):
+	if(player_team == "black" and black_check == True and len(board[black_king_pos[0]][black_king_pos[1]].get_moves(board,black_king_pos)) == 0):
 		print( "Checkmate! You Lose!");
 		return True;
 	return False;
@@ -132,17 +142,17 @@ def checkmate(self):
 
 # make a random move of those available
 # move returned is in form ((row1,col1),(row2,col2))
-def get_random_move(self,team,board):
+def get_random_move(team,board):
 	pieces = [];
 	for i in range(8):
 		for j in range(8):
-			if(board[i][j] != None and board[i][j].team == team and board[i][j].get_moves(board,(i,j)).length > 0):
+			if(board[i][j] != None and board[i][j].team == team and len(board[i][j].get_moves(board,(i,j))) > 0):
 				pieces += (i,j);
-	rand_piece = randint(0,pieces.length - 1);
+	rand_piece = randint(0,len(pieces) - 1);
 	moves = board[pieces[rand_piece][0]][pieces[rand_piece][1]].get_moves(board,(i,j));
 	
 	move_arr = [];
-	for x in range(0,moves.length):
+	for x in range(0,len(moves)):
 		piece_taken = board[moves[x][0]][moves[x][1]];
 		board[moves[x][0]][moves[x][1]] = board[pieces[rand_piece][0]][pieces[rand_piece][1]];
 		board[pieces[rand_piece][0]][pieces[rand_piece][1]] = None;
@@ -152,21 +162,46 @@ def get_random_move(self,team,board):
 		board[pieces[rand_piece][0]][pieces[rand_piece][1]] = board[moves[x][0]][moves[x][1]];
 		board[moves[x][0]][moves[x][1]] = piece_taken;
 	
-	rand_move = randint(0,move_arr.length);
+	rand_move = randint(0,len(move_arr));
 	return ((pieces[rand_piece][0] , pieces[rand_piece][1]) , move_arr[rand_move]);
 
 
 # Main Process
 def main():
+	
+	player_team = "white";
+	enemy_team = "black";
+	white_check = False;
+	black_check = False;
+	
+	# TODO : expand this functionality to an "undo last move" stack
+	# last_move : [ (row,col) , (row,col) , piece_taken ]  OR  None
+	last_move = None;
+	
+	white_king_pos = (0,4);
+	black_king_pos = (7,4);
+	board = [[ Rook("black"), Kight("black"), Bishop("black"), Queen("black"), King("black"), Bishop("black"), Kight("black"), Rook("black")],
+			 [ Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black")],
+			 [ None, None, None, None, None, None, None, None],
+			 [ None, None, None, None, None, None, None, None],
+			 [ None, None, None, None, None, None, None, None],
+			 [ None, None, None, None, None, None, None, None],
+			 [ Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white")],
+			 [ Rook("white"), Kight("white"), Bishop("white"), Queen("white"), King("white"), Bishop("white"), Kight("white"), Rook("white")]];
+	
 	endgame = False;
 	initialize();
-	display_board();
+	display_board(board);
+	
 	while(not endgame):
 		print("moves should be entered in traditional form: A# B#");
-		player_move = input("Please enter your move:");
-		if(validate_input(player_move)):
+		player_move = raw_input("Please enter your move:\n");
+		if(not validate_input(player_move)):
 			continue;
-		if(not move_piece(player)):
+		
+		pos1 = get_coordinates(player_move.split(" ")[0]);
+		pos2 = get_coordinates(player_move.split(" ")[1]);
+		if(not move_piece(pos1,pos2)):
 			continue;
 		
 		if(checkmate()):

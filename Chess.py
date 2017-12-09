@@ -1,9 +1,26 @@
 import sys;
 from Pieces import *;
 
+player_team = "white";
+enemy_team = "black";
+white_check = False;
+black_check = False;
+last_move = None;
+white_king_pos = (0,4);
+black_king_pos = (7,4);
+board = [];
 
 # Initialize Game Stats and Board
 def initialize():
+	global player_team;
+	global enemy_team;
+	global white_check;
+	global black_check;
+	global last_move;
+	global white_king_pos;
+	global black_king_pos;
+	global board;
+	
 	player_team = "white";
 	enemy_team = "black";
 	white_check = False;
@@ -51,11 +68,11 @@ def validate_input(string):
 	
 	for x in range(2):
 		str_move = string.split(" ")[x];
-		if(not(len(str_move.split()) == 2)):
+		if(len(list(str_move)) != 2):
 			print("Invalid move format entered, please retry.");
 			return False;
-		col = str_move.lower().split()[0];
-		row = str_move.lower().split()[1];
+		col = list(str_move.lower())[0];
+		row = list(str_move.lower())[1];
 		if(ord(col) < 97 or ord(col) > 104):
 			print("Invalid move format entered, please retry.");
 			return False;
@@ -69,22 +86,30 @@ def validate_input(string):
 # convert move from string-form (a4, b3, etc) to tuple coordinates
 # this function assumes the string-form is a valid entry
 def get_coordinates(string):
-	col = string.lower().split()[0];
-	row = string.lower().split()[1];
+	col = list(string.lower())[0];
+	row = list(string.lower())[1];
 	col_index = ord(col) - 97;
 	row_index = 8 - (int(row));
 	return (row_index,col_index);
+
+
+# convert move from tuple coordinates to string form
+# this function assumes the coordinates are valid
+def get_stringform(coords):
+	col = coords[1];
+	row = coords[0];
+	return "" + chr(97 + col) + str(8 - row);
 	
 
 # Check if a move is valid, and return "" if move is good (check/checkmate is checked afterwards)
 def validate_move(pos1,pos2):
 	piece = board[pos1[0]][pos1[1]];
 	if(piece == None):
-		return "No piece exists at " + pos1 + "!";
+		return "No piece exists at " + get_stringform(pos1) + "!";
 	elif(piece.team != player_team):
-		return "Piece at " + pos1 + " is not on your team!";
+		return "Piece at " + get_stringform(pos1) + " is not on your team!";
 	elif(not (pos2 in piece.get_moves(board,pos1))):
-		return "Illegal move: This piece cannot move to " + pos2;
+		return "Illegal move: This piece cannot move to " + get_stringform(pos2);
 	else:
 		return "Move successful";
 
@@ -142,7 +167,7 @@ def checkmate():
 
 # make a random move of those available
 # move returned is in form ((row1,col1),(row2,col2))
-def get_random_move(team,board):
+def get_random_move(team):
 	pieces = [];
 	for i in range(8):
 		for j in range(8):
@@ -169,26 +194,6 @@ def get_random_move(team,board):
 # Main Process
 def main():
 	
-	player_team = "white";
-	enemy_team = "black";
-	white_check = False;
-	black_check = False;
-	
-	# TODO : expand this functionality to an "undo last move" stack
-	# last_move : [ (row,col) , (row,col) , piece_taken ]  OR  None
-	last_move = None;
-	
-	white_king_pos = (0,4);
-	black_king_pos = (7,4);
-	board = [[ Rook("black"), Kight("black"), Bishop("black"), Queen("black"), King("black"), Bishop("black"), Kight("black"), Rook("black")],
-			 [ Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black")],
-			 [ None, None, None, None, None, None, None, None],
-			 [ None, None, None, None, None, None, None, None],
-			 [ None, None, None, None, None, None, None, None],
-			 [ None, None, None, None, None, None, None, None],
-			 [ Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white"), Pawn("white")],
-			 [ Rook("white"), Kight("white"), Bishop("white"), Queen("white"), King("white"), Bishop("white"), Kight("white"), Rook("white")]];
-	
 	endgame = False;
 	initialize();
 	display_board(board);
@@ -203,6 +208,9 @@ def main():
 		pos2 = get_coordinates(player_move.split(" ")[1]);
 		if(not move_piece(pos1,pos2)):
 			continue;
+		
+		# At this point the player's move has been successfully completed
+		board[pos2[0]][pos2[1]].has_moved = True;
 		
 		if(checkmate()):
 			endgame = True;

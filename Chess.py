@@ -1,4 +1,5 @@
 import sys;
+from random import *;
 from Pieces import *;
 
 player_team = "white";
@@ -45,7 +46,13 @@ def initialize():
 # Display the board and Stats
 def display_board(board):
 	for i in range(0,8):
-		print(board[i]);
+		string = "| ";
+		for j in range(0,8):
+			if(board[i][j] == None):
+				string += "--- ";
+			else:
+				string += ("" + repr(board[i][j]) + " ");
+		print(string + "|");
 
 
 # Check for jepordy/check
@@ -54,9 +61,9 @@ def analyze_check():
 	black_check = False;
 	for x in range(0,7):
 		for y in range(0,7):
-			if(board[x][y] != None and board[x][y].team == "black" and white_king_pos in board[x][y].get_moves()):
+			if(board[x][y] != None and board[x][y].team == "black" and white_king_pos in board[x][y].get_moves(board,(x,y))):
 				white_check = True;
-			elif(board[x][y] != None and board[x][y].team == "white" and black_king_pos in board[x][y].get_moves()):
+			elif(board[x][y] != None and board[x][y].team == "white" and black_king_pos in board[x][y].get_moves(board,(x,y))):
 				black_check = True;
 
 
@@ -134,7 +141,7 @@ def move_piece(pos1,pos2):
 		print(validation);
 		return False;
 	board[pos2[0]][pos2[1]] = board[pos1[0]][pos1[1]];
-	board[pos2[0]][pos2[1]] = None;
+	board[pos1[0]][pos1[1]] = None;
 	analyze_check();
 	
 	# check for invalid move due to putting oneself in check; revert move if necessary
@@ -167,28 +174,29 @@ def checkmate():
 
 # make a random move of those available
 # move returned is in form ((row1,col1),(row2,col2))
-def get_random_move(team):
+def get_random_move(tteam):
 	pieces = [];
 	for i in range(8):
 		for j in range(8):
-			if(board[i][j] != None and board[i][j].team == team and len(board[i][j].get_moves(board,(i,j))) > 0):
-				pieces += (i,j);
-	rand_piece = randint(0,len(pieces) - 1);
-	moves = board[pieces[rand_piece][0]][pieces[rand_piece][1]].get_moves(board,(i,j));
+			if(board[i][j] != None and board[i][j].team == tteam and len(board[i][j].get_moves(board,(i,j))) > 0):
+				pieces.append((i,j));
+	rand_piece_index = randint(0,len(pieces) - 1);
+	moves = board[(pieces[rand_piece_index])[0]][(pieces[rand_piece_index])[1]].get_moves(board,((pieces[rand_piece_index])[0],(pieces[rand_piece_index])[1]));
 	
 	move_arr = [];
 	for x in range(0,len(moves)):
-		piece_taken = board[moves[x][0]][moves[x][1]];
-		board[moves[x][0]][moves[x][1]] = board[pieces[rand_piece][0]][pieces[rand_piece][1]];
-		board[pieces[rand_piece][0]][pieces[rand_piece][1]] = None;
+		piece_taken = board[moves[x][0]],[moves[x][1]];
+		board[moves[x][0]][moves[x][1]] = board[pieces[rand_piece_index][0]][pieces[rand_piece_index][1]];
+		board[pieces[rand_piece_index][0]][pieces[rand_piece_index][1]] = None;
+		display_board(board);
 		analyze_check();
-		if(not ((enemy_team == "white" and white_check) or (enemy_team == "black" and black_check))):
-			move_arr += moves[x];
-		board[pieces[rand_piece][0]][pieces[rand_piece][1]] = board[moves[x][0]][moves[x][1]];
+		if(not ((tteam == "white" and white_check) or (tteam == "black" and black_check))):
+			move_arr.append(moves[x]);
+		board[pieces[rand_piece_index][0]][pieces[rand_piece_index][1]] = board[moves[x][0]][moves[x][1]];
 		board[moves[x][0]][moves[x][1]] = piece_taken;
 	
-	rand_move = randint(0,len(move_arr));
-	return ((pieces[rand_piece][0] , pieces[rand_piece][1]) , move_arr[rand_move]);
+	rand_move = randint(0,len(move_arr)-1);
+	return ((pieces[rand_piece_index][0] , pieces[rand_piece_index][1]) , move_arr[rand_move]);
 
 
 # Main Process
@@ -196,9 +204,9 @@ def main():
 	
 	endgame = False;
 	initialize();
-	display_board(board);
 	
 	while(not endgame):
+		display_board(board);
 		print("moves should be entered in traditional form: A# B#");
 		player_move = raw_input("Please enter your move:\n");
 		if(not validate_input(player_move)):
@@ -217,7 +225,7 @@ def main():
 			break;
 		
 		# Enemy move function goes here
-		enemy_move = get_random_move(enemy_team,board);
+		enemy_move = get_random_move(enemy_team);
 		
 		board[enemy_move[1][0]][enemy_move[1][1]] = board[enemy_move[0][0]][enemy_move[0][1]];
 		board[enemy_move[0][0]][enemy_move[0][1]] = None;

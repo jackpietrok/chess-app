@@ -275,6 +275,8 @@ def main():
 		board[enemy_move[1][0]][enemy_move[1][1]] = board[enemy_move[0][0]][enemy_move[0][1]];
 		board[enemy_move[0][0]][enemy_move[0][1]] = None;
 		
+		board[enemy_move[1][0]][enemy_move[1][1]].has_moved = True;
+		
 		analyze_check();
 		if(checkmate()):
 			display_board(board);

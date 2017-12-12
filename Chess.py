@@ -45,22 +45,37 @@ def initialize():
 
 # Display the board and Stats
 def display_board(board):
+	print("  -----------------------------------");
 	for i in range(0,8):
-		string = "| ";
+		string = str(8 - i) + " | ";
 		for j in range(0,8):
 			if(board[i][j] == None):
 				string += "--- ";
 			else:
 				string += ("" + repr(board[i][j]) + " ");
 		print(string + "|");
+	print("  -----------------------------------");
+	print("     A   B   C   D   E   F   G   H");
 
 
 # Check for jepordy/check
 def analyze_check():
+	global white_king_pos;
+	global black_king_pos;
+	global white_check;
+	global black_check;
+	
 	white_check = False;
 	black_check = False;
-	for x in range(0,7):
-		for y in range(0,7):
+	for x in range(0,8):
+		for y in range(0,8):
+			if(type(board[x][y]) == King and board[x][y].team == "white"):
+				white_king_pos = (x,y);
+			elif(type(board[x][y]) == King and board[x][y].team == "black"):
+				black_king_pos = (x,y);
+				
+	for x in range(0,8):
+		for y in range(0,8):
 			if(board[x][y] != None and board[x][y].team == "black" and white_king_pos in board[x][y].get_moves(board,(x,y))):
 				white_check = True;
 			elif(board[x][y] != None and board[x][y].team == "white" and black_king_pos in board[x][y].get_moves(board,(x,y))):
@@ -155,20 +170,45 @@ def move_piece(pos1,pos2):
 
 
 # check for checkmate / stalemate
-# TODO : handle stalemate
 def checkmate():
-	if(player_team == "white" and black_check == True and len(board[black_king_pos[0]][black_king_pos[1]].get_moves(board,black_king_pos)) == 0):
+	if(player_team == "white" and black_check == True and can_move_any("black") == False):
 		print( "Checkmate! You Win!");
 		return True;
-	if(player_team == "black" and white_check == True and len(board[white_king_pos[0]][white_king_pos[1]].get_moves(board,white_king_pos)) == 0):
+	if(player_team == "black" and white_check == True and can_move_any("white") == False):
 		print( "Checkmate! You Win!");
 		return True;
-	if(player_team == "white" and white_check == True and len(board[white_king_pos[0]][white_king_pos[1]].get_moves(board,white_king_pos)) == 0):
+	if(player_team == "white" and white_check == True and can_move_any("white") == False):
 		print( "Checkmate! You Lose!");
 		return True;
-	if(player_team == "black" and black_check == True and len(board[black_king_pos[0]][black_king_pos[1]].get_moves(board,black_king_pos)) == 0):
+	if(player_team == "black" and black_check == True and can_move_any("black") == False):
 		print( "Checkmate! You Lose!");
 		return True;
+	if(black_check == False and can_move_any("black") == False):
+		print( "Stalemate!");
+		return True;
+	if(white_check == False and can_move_any("white") == False):
+		print( "Stalemate!");
+		return True;
+	return False;
+
+
+# returns true if the given team has ANY valid moves available
+def can_move_any(tteam):
+	for i in range(0,8):
+		for j in range(0,8):
+			if(board[i][j] != None and board[i][j].team == tteam):
+				moves = board[i][j].get_moves(board,(i,j));
+				for x in range(0,len(moves)):
+					piece_taken = board[moves[x][0]][moves[x][1]];
+					board[moves[x][0]][moves[x][1]] = board[i][j];
+					board[i][j] = None;
+					analyze_check();
+					board[i][j] = board[moves[x][0]][moves[x][1]];
+					board[moves[x][0]][moves[x][1]] = piece_taken;
+					if(tteam == "white" and white_check == False):
+						return True;
+					elif(tteam == "black" and black_check == False):
+						return True;
 	return False;
 
 
@@ -185,10 +225,9 @@ def get_random_move(tteam):
 	
 	move_arr = [];
 	for x in range(0,len(moves)):
-		piece_taken = board[moves[x][0]],[moves[x][1]];
+		piece_taken = board[moves[x][0]][moves[x][1]];
 		board[moves[x][0]][moves[x][1]] = board[pieces[rand_piece_index][0]][pieces[rand_piece_index][1]];
 		board[pieces[rand_piece_index][0]][pieces[rand_piece_index][1]] = None;
-		display_board(board);
 		analyze_check();
 		if(not ((tteam == "white" and white_check) or (tteam == "black" and black_check))):
 			move_arr.append(moves[x]);
@@ -220,7 +259,9 @@ def main():
 		# At this point the player's move has been successfully completed
 		board[pos2[0]][pos2[1]].has_moved = True;
 		
+		analyze_check();
 		if(checkmate()):
+			display_board(board);
 			endgame = True;
 			break;
 		
@@ -230,7 +271,9 @@ def main():
 		board[enemy_move[1][0]][enemy_move[1][1]] = board[enemy_move[0][0]][enemy_move[0][1]];
 		board[enemy_move[0][0]][enemy_move[0][1]] = None;
 		
+		analyze_check();
 		if(checkmate()):
+			display_board(board);
 			endgame = True;
 			break;
 		

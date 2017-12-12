@@ -1,4 +1,5 @@
 import sys;
+from itertools import *;
 
 class Piece:
 	
@@ -25,18 +26,18 @@ class Pawn(Piece):
 		row = pos[0];
 		col = pos[1];
 		if(self.team == "black"):
-			if(col != 0 and row != 7 and (board[row+1][col-1] != None and board[row+1][col-1].team != "white")):
+			if(col != 0 and row != 7 and (board[row+1][col-1] != None and board[row+1][col-1].team == "white")):
 				arr.append((row+1,col-1));
-			if(col != 7 and row != 7 and (board[row+1][col+1] != None and board[row+1][col+1].team != "white")):
+			if(col != 7 and row != 7 and (board[row+1][col+1] != None and board[row+1][col+1].team == "white")):
 				arr.append((row+1,col+1));
 			if(board[row+1][col] == None):
 				arr.append((row+1,col));
 			if((not self.has_moved) and board[row+2][col] == None):
 				arr.append((row+2,col));
 		else:
-			if(col != 0 and row != 0 and (board[row-1][col-1] != None and board[row-1][col-1].team != "black")):
+			if(col != 0 and row != 0 and (board[row-1][col-1] != None and board[row-1][col-1].team == "black")):
 				arr.append((row-1,col-1));
-			if(col != 7 and row != 0 and (board[row-1][col+1] != None and board[row-1][col+1].team != "black")):
+			if(col != 7 and row != 0 and (board[row-1][col+1] != None and board[row-1][col+1].team == "black")):
 				arr.append((row-1,col+1));
 			if(board[row-1][col] == None):
 				arr.append((row-1,col));
@@ -68,22 +69,22 @@ class Rook(Piece):
 					arr.append((x,col));
 				break;
 			else:
-				arr += (x,col);
-		for x in range(row+1,7):
+				arr.append((x,col));
+		for x in range(row+1,8):
 			if(board[x][col] != None):
 				if(board[x][col].team != self.team):
 					arr.append((x,col));
 				break;
 			else:
-				arr += (x,col);
+				arr.append((x,col));
 		for x in range(col-1,-1,-1):
 			if(board[row][x] != None):
 				if(board[row][x].team != self.team):
 					arr.append((row,x));
 				break;
 			else:
-				arr += (row,x);
-		for x in range(col+1,7):
+				arr.append((row,x));
+		for x in range(col+1,8):
 			if(board[row][x] != None):
 				if(board[row][x].team != self.team):
 					arr.append((row,x));
@@ -105,6 +106,10 @@ class Bishop(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = False;
+		
+	def add_tuple(self,xs,y1,y2):
+		ys = (y1,y2);
+		return tuple(x + y for x, y in izip(xs, ys));
 	
 	def get_moves(self,board,pos):
 		arr = [];
@@ -112,41 +117,40 @@ class Bishop(Piece):
 		col = pos[1];
 		temp = pos;
 		while(temp[0] != 0 and temp[1] != 0):
+			temp = self.add_tuple(temp,-1,-1);
 			if(board[temp[0]][temp[1]] != None):
-				if(board[temp[0]][temp[1]] != self.team):
-					arr.append(temp);
-				break;
-			else:
-				arr += temp;
-				temp[0] -= 1;
-				temp[1] -= 1;
-		while(temp[0] != 0 and temp[1] != 7):
-			if(board[temp[0]][temp[1]] != None):
-				if(board[temp[0]][temp[1]] != self.team):
-					arr.append(temp);
-				break;
-			else:
-				arr += temp;
-				temp[0] -= 1;
-				temp[1] += 1;
-		while(temp[0] != 7 and temp[1] != 0):
-			if(board[temp[0]][temp[1]] != None):
-				if(board[temp[0]][temp[1]] != self.team):
-					arr.append(temp);
-				break;
-			else:
-				arr += temp;
-				temp[0] += 1;
-				temp[1] -= 1;
-		while(temp[0] != 7 and temp[1] != 7):
-			if(board[temp[0]][temp[1]] != None):
-				if(board[temp[0]][temp[1]] != self.team):
+				if(board[temp[0]][temp[1]].team != self.team):
 					arr.append(temp);
 				break;
 			else:
 				arr.append(temp);
-				temp[0] -= 7;
-				temp[1] -= 7;
+		temp = pos;
+		while(temp[0] != 0 and temp[1] != 7):
+			temp = self.add_tuple(temp,-1,1);
+			if(board[temp[0]][temp[1]] != None):
+				if(board[temp[0]][temp[1]].team != self.team):
+					arr.append(temp);
+				break;
+			else:
+				arr.append(temp);
+		temp = pos;
+		while(temp[0] != 7 and temp[1] != 0):
+			temp = self.add_tuple(temp,1,-1);
+			if(board[temp[0]][temp[1]] != None):
+				if(board[temp[0]][temp[1]].team != self.team):
+					arr.append(temp);
+				break;
+			else:
+				arr.append(temp);
+		temp = pos;
+		while(temp[0] != 7 and temp[1] != 7):
+			temp = self.add_tuple(temp,1,1);
+			if(board[temp[0]][temp[1]] != None):
+				if(board[temp[0]][temp[1]].team != self.team):
+					arr.append(temp);
+				break;
+			else:
+				arr.append(temp);
 		return arr;
 
 	def __repr__(self):
@@ -191,12 +195,15 @@ class Queen(Piece):
 		Piece.__init__(self,te);
 		self.can_jump = False;
 	
+	def add_tuple(self,xs,y1,y2):
+		ys = (y1,y2);
+		return tuple(x + y for x, y in izip(xs, ys));
+	
 	# This one's a monster (rook and bishop combined)
 	def get_moves(self,board,pos):
 		arr = [];
 		row = pos[0];
 		col = pos[1];
-		temp = pos;
 		for x in range(row-1,-1,-1):
 			if(board[x][col] != None):
 				if(board[x][col].team != self.team):
@@ -204,7 +211,7 @@ class Queen(Piece):
 				break;
 			else:
 				arr.append((x,col));
-		for x in range(row+1,7):
+		for x in range(row+1,8):
 			if(board[x][col] != None):
 				if(board[x][col].team != self.team):
 					arr.append((x,col));
@@ -218,49 +225,49 @@ class Queen(Piece):
 				break;
 			else:
 				arr.append((row,x));
-		for x in range(col+1,7):
+		for x in range(col+1,8):
 			if(board[row][x] != None):
 				if(board[row][x].team != self.team):
 					arr.append((row,x));
 				break;
 			else:
 				arr.append((row,x));
+		temp = pos;
 		while(temp[0] != 0 and temp[1] != 0):
+			temp = self.add_tuple(temp,-1,-1);
 			if(board[temp[0]][temp[1]] != None):
-				if(board[temp[0]][temp[1]] != self.team):
+				if(board[temp[0]][temp[1]].team != self.team):
 					arr.append(temp);
 				break;
 			else:
 				arr.append(temp);
-				temp[0] -= 1;
-				temp[1] -= 1;
+		temp = pos;
 		while(temp[0] != 0 and temp[1] != 7):
+			temp = self.add_tuple(temp,-1,1);
 			if(board[temp[0]][temp[1]] != None):
-				if(board[temp[0]][temp[1]] != self.team):
+				if(board[temp[0]][temp[1]].team != self.team):
 					arr.append(temp);
 				break;
 			else:
 				arr.append(temp);
-				temp[0] -= 1;
-				temp[1] += 1;
+		temp = pos;
 		while(temp[0] != 7 and temp[1] != 0):
+			temp = self.add_tuple(temp,1,-1);
 			if(board[temp[0]][temp[1]] != None):
-				if(board[temp[0]][temp[1]] != self.team):
+				if(board[temp[0]][temp[1]].team != self.team):
 					arr.append(temp);
 				break;
 			else:
 				arr.append(temp);
-				temp[0] += 1;
-				temp[1] -= 1;
+		temp = pos;
 		while(temp[0] != 7 and temp[1] != 7):
+			temp = self.add_tuple(temp,1,1);
 			if(board[temp[0]][temp[1]] != None):
-				if(board[temp[0]][temp[1]] != self.team):
+				if(board[temp[0]][temp[1]].team != self.team):
 					arr.append(temp);
 				break;
 			else:
 				arr.append(temp);
-				temp[0] -= 7;
-				temp[1] -= 7;
 		return arr;
 
 	def __repr__(self):

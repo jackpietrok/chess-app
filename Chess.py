@@ -31,8 +31,8 @@ def initialize():
 	# last_move : [ (row,col) , (row,col) , piece_taken ]  OR  None
 	last_move = None;
 	
-	white_king_pos = (0,4);
-	black_king_pos = (7,4);
+	white_king_pos = (7,4);
+	black_king_pos = (0,4);
 	board = [[ Rook("black"), Kight("black"), Bishop("black"), Queen("black"), King("black"), Bishop("black"), Kight("black"), Rook("black")],
 			 [ Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black"), Pawn("black")],
 			 [ None, None, None, None, None, None, None, None],
@@ -69,9 +69,9 @@ def analyze_check():
 	black_check = False;
 	for x in range(0,8):
 		for y in range(0,8):
-			if(type(board[x][y]) == King and board[x][y].team == "white"):
+			if(type(board[x][y]) is King and board[x][y].team == "white"):
 				white_king_pos = (x,y);
-			elif(type(board[x][y]) == King and board[x][y].team == "black"):
+			elif(type(board[x][y]) is King and board[x][y].team == "black"):
 				black_king_pos = (x,y);
 				
 	for x in range(0,8):
@@ -80,7 +80,6 @@ def analyze_check():
 				white_check = True;
 			elif(board[x][y] != None and board[x][y].team == "white" and black_king_pos in board[x][y].get_moves(board,(x,y))):
 				black_check = True;
-
 
 # check input to make sure the moves enetered are valid
 def validate_input(string):
@@ -213,29 +212,35 @@ def can_move_any(tteam):
 
 
 # make a random move of those available
-# move returned is in form ((row1,col1),(row2,col2))
+# # move returned is in form ((row1,col1),(row2,col2))
 def get_random_move(tteam):
-	pieces = [];
+	dic = get_all_moves(tteam);
+	rand_key = choice(dic.keys());
+	rand_item = choice(dic[rand_key])
+	return (rand_key,rand_item);
+
+
+# returns dictionary of all possible moves by given team
+# format : {pos1 : pos2_1 , pos2_2 , pos2_3 , etc}
+def get_all_moves(tteam):
+	dic = {};
 	for i in range(8):
 		for j in range(8):
 			if(board[i][j] != None and board[i][j].team == tteam and len(board[i][j].get_moves(board,(i,j))) > 0):
-				pieces.append((i,j));
-	rand_piece_index = randint(0,len(pieces) - 1);
-	moves = board[(pieces[rand_piece_index])[0]][(pieces[rand_piece_index])[1]].get_moves(board,((pieces[rand_piece_index])[0],(pieces[rand_piece_index])[1]));
-	
-	move_arr = [];
-	for x in range(0,len(moves)):
-		piece_taken = board[moves[x][0]][moves[x][1]];
-		board[moves[x][0]][moves[x][1]] = board[pieces[rand_piece_index][0]][pieces[rand_piece_index][1]];
-		board[pieces[rand_piece_index][0]][pieces[rand_piece_index][1]] = None;
-		analyze_check();
-		if(not ((tteam == "white" and white_check) or (tteam == "black" and black_check))):
-			move_arr.append(moves[x]);
-		board[pieces[rand_piece_index][0]][pieces[rand_piece_index][1]] = board[moves[x][0]][moves[x][1]];
-		board[moves[x][0]][moves[x][1]] = piece_taken;
-	
-	rand_move = randint(0,len(move_arr)-1);
-	return ((pieces[rand_piece_index][0] , pieces[rand_piece_index][1]) , move_arr[rand_move]);
+				moves = board[i][j].get_moves(board,(i,j));
+				dic[(i,j)] = [];
+				for x in range(0,len(moves)):
+					piece_taken = board[moves[x][0]][moves[x][1]];
+					board[moves[x][0]][moves[x][1]] = board[i][j];
+					board[i][j] = None;
+					analyze_check();
+					if(not ((tteam == "white" and white_check) or (tteam == "black" and black_check))):
+						dic[(i,j)].append((moves[x]));
+					board[i][j] = board[moves[x][0]][moves[x][1]];
+					board[moves[x][0]][moves[x][1]] = piece_taken;
+				if(len(dic[(i,j)]) == 0):
+					del dic[(i,j)];
+	return dic;
 
 
 # Main Process
@@ -246,7 +251,6 @@ def main():
 	
 	while(not endgame):
 		display_board(board);
-		print("moves should be entered in traditional form: A# B#");
 		player_move = raw_input("Please enter your move:\n");
 		if(not validate_input(player_move)):
 			continue;

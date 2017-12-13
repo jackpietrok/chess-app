@@ -5,6 +5,7 @@ class Piece:
 	
 	def __init__(self,te):
 		self.team = te;
+		self.value = 1;
 		self.has_moved = False;
 		
 	def switch_team(self):
@@ -22,6 +23,7 @@ class Pawn(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = True;
+		self.value = 1;
 	
 	def get_moves(self,board,pos):
 		arr = [];
@@ -62,6 +64,7 @@ class Rook(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = False;
+		self.value = 5;
 	
 	def get_moves(self,board,pos):
 		arr = [];
@@ -112,6 +115,7 @@ class Bishop(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = False;
+		self.value = 3;
 		
 	def add_tuple(self,xs,y1,y2):
 		ys = (y1,y2);
@@ -175,6 +179,7 @@ class Kight(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = True;
+		self.value = 3;
 	
 	def get_moves(self,board,pos):
 		arr = [];
@@ -205,6 +210,7 @@ class Queen(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = False;
+		self.value = 10;
 	
 	def add_tuple(self,xs,y1,y2):
 		ys = (y1,y2);
@@ -296,6 +302,7 @@ class King(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = True;
+		self.value = 4;
 	
 	def get_moves(self,board,pos):
 		arr = [];

@@ -1,6 +1,7 @@
 import sys;
 from random import *;
 from Pieces import *;
+from EnemyAI import *;
 
 player_team = "white";
 enemy_team = "black";
@@ -303,38 +304,6 @@ def castle_move(tteam,input_move):
 			return False;
 		print("Move successful!");
 		return True;
-		
-
-# make a random move of those available
-# # move returned is in form ((row1,col1),(row2,col2))
-def get_random_move(tteam):
-	dic = get_all_moves(tteam);
-	rand_key = choice(dic.keys());
-	rand_item = choice(dic[rand_key])
-	return (rand_key,rand_item);
-
-
-# returns dictionary of all possible moves by given team
-# format : {pos1 : pos2_1 , pos2_2 , pos2_3 , etc}
-def get_all_moves(tteam):
-	dic = {};
-	for i in range(8):
-		for j in range(8):
-			if(board[i][j] != None and board[i][j].team == tteam and len(board[i][j].get_moves(board,(i,j))) > 0):
-				moves = board[i][j].get_moves(board,(i,j));
-				dic[(i,j)] = [];
-				for x in range(0,len(moves)):
-					piece_taken = board[moves[x][0]][moves[x][1]];
-					board[moves[x][0]][moves[x][1]] = board[i][j];
-					board[i][j] = None;
-					analyze_check();
-					if(not ((tteam == "white" and white_check) or (tteam == "black" and black_check))):
-						dic[(i,j)].append((moves[x]));
-					board[i][j] = board[moves[x][0]][moves[x][1]];
-					board[moves[x][0]][moves[x][1]] = piece_taken;
-				if(len(dic[(i,j)]) == 0):
-					del dic[(i,j)];
-	return dic;
 
 
 # Main Process

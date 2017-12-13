@@ -13,6 +13,8 @@ class Piece:
 		else:
 			team = "white";
 		
+	def to_string(self):
+		return "piece";
 
 # Pawn piece
 class Pawn(Piece):
@@ -51,6 +53,8 @@ class Pawn(Piece):
 		else:
 			return "W_p";
 
+	def to_string(self):
+		return "pawn";
 
 # Rook piece (castle)
 class Rook(Piece):
@@ -99,6 +103,8 @@ class Rook(Piece):
 		else:
 			return "W_r";
 
+	def to_string(self):
+		return "rook";
 
 # Bishop piece (priest)
 class Bishop(Piece):
@@ -158,6 +164,9 @@ class Bishop(Piece):
 			return "B_b";
 		else:
 			return "W_b";
+		
+	def to_string(self):
+		return "bishop";
 	
 
 # Knight piece (horse)
@@ -187,6 +196,8 @@ class Kight(Piece):
 		else:
 			return "W_n";
 
+	def to_string(self):
+		return "knight";
 
 # Queen piece
 class Queen(Piece):
@@ -276,6 +287,8 @@ class Queen(Piece):
 		else:
 			return "W_Q";
 	
+	def to_string(self):
+		return "queen";
 
 # King piece
 class King(Piece):
@@ -302,4 +315,6 @@ class King(Piece):
 		else:
 			return "W_K";
 	
+	def to_string(self):
+		return "king";
 

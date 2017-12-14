@@ -35,22 +35,28 @@ def get_all_moves(tteam):
 	return dic;
 
 
+# returns the team opposite to the given team
+def flip_team(team):
+	eteam = "white";
+	if(team == "white"):
+		eteam = "black";
+	return eteam;
+
+
 # returns whether the given position is in jepordy
 def is_in_jepordy(pos,tteam):
-    eteam = "white";
-    if(tteam == "white"):
-        eteam = "black";
+    eteam = flip_team(tteam);
     if(pos in get_all_moves(eteam)):
         return True;
     return False;
 
 
-# returns a list of ALL pieces which can attack the given space
-def get_attackers(pos):
+# returns a list of all pieces on the given team which can attack the given space
+def get_attackers(pos,tteam):
     arr = [];
     for i in range(0,8):
         for j in range(0,8):
-            if(board[i][j] != None and pos in board[i][j].get_moves()):
+            if(board[i][j] != None and board[i][j].team == tteam and pos in board[i][j].get_moves()):
                 arr.append((i,j));
     return arr;
 
@@ -59,17 +65,25 @@ def get_attackers(pos):
 # "the returned value represents the value gained if a piece-for-piece tradeoff were to ocurr here"
 def tradeoff_value(pos,tteam):
     tot = 0;
-    arr = get_attackers(pos);
-    if(board[pos[0]][pos[1]] != None):
-        arr.append(pos);
-    for x in range(0,len(arr)):
-        piece = board[arr[x][0]][arr[x][1]]
-        if(piece.team != tteam):
-            tot += piece.value;
-        else:
-            tot -= piece.value
-    return tot;
+    arr = get_attackers(pos,tteam);
+	arr.append(get_attackers(pos,flip_team(tteam)));
+	if(board[pos[0]][pos[1]] != None):
+		arr.append(pos);
+	for x in range(0,len(arr)):
+		piece = board[arr[x][0]][arr[x][1]];
+		if(piece.team != tteam):
+			tot += piece.value;
+		else:
+			tot -= piece.value;
+	return tot;
 
+
+# sums up the value of all pieces in the given array of positions
+def sum_values(arr):
+	tot = 0;
+	for x in arr:
+		tot += board[x[0]][x[1]];
+	return tot;
 
 # returns whether the given postion is being backed up by another friendly piece
 def is_backed_up(pos,tteam):
@@ -84,15 +98,16 @@ def basic_point_system(board,tteam):
     keys = available_moves.keys();
     point_dic = {};
     for x in range(0,len(keys)):
-        key = keys[x]
+        key = keys[x];
         for y in range(0,len(available_moves[key])):
             pos1 = key;
             pos2 = available_moves[key][y];
+			point_dic[(pos1,pos2)] = 0;
             # things to check: pieces taken, self in jepordy, puts self in jepordy, puts enemy in check,
             # puts enemy in jepordy,
             
             # accounts for if your piece is in jepordy
             if(is_in_jepordy(pos1,tteam)):
-                
-        
-        
+				if(sum_values(get_attackers(pos1,tteam)) == sum_values(get_attackers(pos1,tteam))):
+					point_dic[(pos1,pos2)] += tradeoff_value(pos1);
+				elif(sum_values(get_attackers(pos1,tteam)) > sum_values(get_attackers(pos1,tteam))):

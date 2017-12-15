@@ -346,7 +346,7 @@ def main():
 		
 		# Enemy get_move function goes here
 		#--------------------------------------------
-		enemy_move = get_random_move(enemy_team);
+		enemy_move = get_move_minimax(enemy_team);
 		#--------------------------------------------
 		
 		board[enemy_move[1][0]][enemy_move[1][1]] = board[enemy_move[0][0]][enemy_move[0][1]];

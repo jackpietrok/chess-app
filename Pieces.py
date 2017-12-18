@@ -22,7 +22,7 @@ class Pawn(Piece):
 	
 	def __init__(self,te):
 		Piece.__init__(self,te);
-		self.can_jump = True;
+		self.can_jump = False;
 		self.value = 1;
 	
 	def get_moves(self,board,pos):
@@ -36,7 +36,7 @@ class Pawn(Piece):
 				arr.append((row+1,col+1));
 			if(board[row+1][col] == None):
 				arr.append((row+1,col));
-			if((not self.has_moved) and board[row+2][col] == None):
+			if((not self.has_moved) and board[row+2][col] == None and board[row+1][col] == None):
 				arr.append((row+2,col));
 		else:
 			if(col != 0 and row != 0 and (board[row-1][col-1] != None and board[row-1][col-1].team == "black")):
@@ -45,7 +45,7 @@ class Pawn(Piece):
 				arr.append((row-1,col+1));
 			if(board[row-1][col] == None):
 				arr.append((row-1,col));
-			if((not self.has_moved) and board[row-2][col] == None):
+			if((not self.has_moved) and board[row-2][col] == None and board[row-1][col] == None):
 				arr.append((row-2,col));
 		return arr;
 		

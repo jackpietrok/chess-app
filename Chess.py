@@ -455,7 +455,7 @@ def evaluate_board():
 				tot -= board[i][j].value;
 			if(board[i][j] != None and board[i][j].team == enemy_team):
 				tot += board[i][j].value;
-	
+	return tot;
 	
 # recursive minimax algorithm where node = move, and max-player = enemyAI
 def minimax(moves,depth,max_player):
@@ -473,7 +473,7 @@ def minimax(moves,depth,max_player):
 				board[key[0]][key[1]] = None;
 				new_moves = get_all_moves(flip_team(max_player));
 				v = minimax(new_moves,depth-1,flip_team(max_player))[1];
-				board = origin;
+				board = deepcopy(origin);
 				best_value = max(best_value,v);
 		return (move , best_value);
 	
@@ -487,7 +487,7 @@ def minimax(moves,depth,max_player):
 				board[key[0]][key[1]] = None;
 				new_moves = get_all_moves(flip_team(max_player));
 				v = minimax(new_moves,depth-1,flip_team(max_player))[1];
-				board = origin;
+				board = deepcopy(origin);
 				best_value = min(best_value,v);
 		return (move , best_value);
 	
@@ -539,7 +539,7 @@ def main():
 		
 		# Enemy get_move function goes here
 		#--------------------------------------------
-		enemy_move = get_move_minimax(player_move);
+		enemy_move = get_move_minimax(enemy_team);
 		#--------------------------------------------
 		
 		board[enemy_move[1][0]][enemy_move[1][1]] = board[enemy_move[0][0]][enemy_move[0][1]];

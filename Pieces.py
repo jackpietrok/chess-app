@@ -5,7 +5,6 @@ class Piece:
 	
 	def __init__(self,te):
 		self.team = te;
-		self.value = 1;
 		self.has_moved = False;
 		
 	def switch_team(self):

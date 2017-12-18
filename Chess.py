@@ -438,22 +438,22 @@ def in_stalemate():
 	
 # heuristic evaluation function which examines the entire board
 # + considers: piece-value, check, 
-def evaluate_board():
+def evaluate_board(tteam):
 	analyze_check();
 	if(in_checkmate(enemy_team)):
 		return -1000000000;
 	if(in_checkmate(player_team)):
 		return 1000000000;
 	tot = 0;
-	if((enemy_team == "black" and black_check) or (enemy_team == "white" and white_check)):
+	if((tteam == "black" and black_check) or (tteam == "white" and white_check)):
 		tot -= 0.3;
-	elif((player_team == "black" and black_check) or (player_team == "white" and white_check)):
+	elif((flip_team(tteam) == "black" and black_check) or (flip_team(tteam) == "white" and white_check)):
 		tot += 0.3;
 	for i in range(0,8):
 		for j in range(0,8):
-			if(board[i][j] != None and board[i][j].team == player_team):
+			if(board[i][j] != None and board[i][j].team == flip_team(tteam)):
 				tot -= board[i][j].value;
-			if(board[i][j] != None and board[i][j].team == enemy_team):
+			if(board[i][j] != None and board[i][j].team == tteam):
 				tot += board[i][j].value;
 	return tot;
 	
@@ -461,10 +461,11 @@ def evaluate_board():
 def minimax(moves,depth,max_player):
 	global board;
 	if(depth == 0 or in_checkmate(enemy_team) or in_checkmate(player_team) or in_stalemate()):
-		return (None , evaluate_board());
+		return (None , evaluate_board(max_player));
 	
 	if(max_player == enemy_team):
 		best_value = -1000000000;
+		best_move = None;
 		for key in moves.keys():
 			for value in moves[key]:
 				origin = deepcopy(board);
@@ -474,11 +475,14 @@ def minimax(moves,depth,max_player):
 				new_moves = get_all_moves(flip_team(max_player));
 				v = minimax(new_moves,depth-1,flip_team(max_player))[1];
 				board = deepcopy(origin);
-				best_value = max(best_value,v);
-		return (move , best_value);
+				if(v > best_value):
+					best_value = v;
+					best_move = move;
+		return (best_move , best_value);
 	
 	if(max_player == player_team):
 		best_value = 1000000000;
+		best_move = None;
 		for key in moves.keys():
 			for value in moves[key]:
 				origin = deepcopy(board);
@@ -488,9 +492,11 @@ def minimax(moves,depth,max_player):
 				new_moves = get_all_moves(flip_team(max_player));
 				v = minimax(new_moves,depth-1,flip_team(max_player))[1];
 				board = deepcopy(origin);
-				best_value = min(best_value,v);
-		return (move , best_value);
-	
+				if(v < best_value):
+					best_value = v;
+					best_move = move;
+		return (best_move , best_value);
+
 
 # move selection function which uses minimax to determine best course of action
 def get_move_minimax(tteam):

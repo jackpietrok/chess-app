@@ -381,7 +381,7 @@ def is_connected(pos):
 # returns a value multiplier in accordance with the passed PAWN position's relative structure
 # consideres if the pawn is connected, passed, isolated, or both passed and connected
 # Note: only applies to PAWNS (all else returns False)
-def pawn_multiplier(pos)
+def pawn_multiplier(pos):
 	if(board[pos[0]][pos[1]] == None or board[pos[0]][pos[1]].to_string != "pawn"):
 		return False;
 	if(is_connected(pos) and is_passed(pos)):
@@ -510,22 +510,24 @@ def evaluate_board(tteam):
 	# --- Base Piece Values ---
 	for i in range(0,8):
 		for j in range(0,8):
-			val = board[i][j].value;
+			if(board[i][j] != None and board[i][j].team == flip_team(tteam)):
+				val = board[i][j].value;
 				if(board[i][j].to_string() == "pawn"):
 					val *= pawn_multiplier((i,j));
-			
-			if(board[i][j] != None and board[i][j].team == flip_team(tteam)):
-				tot -= val
+				tot -= val;
 			if(board[i][j] != None and board[i][j].team == tteam):
-				tot += val
-				
+				val = board[i][j].value;
+				if(board[i][j].to_string() == "pawn"):
+					val *= pawn_multiplier((i,j));
+				tot += val;
 	return tot;
 #--------------------------------------------------------------------------------------------------------------
 
-	
+
 	
 # recursive minimax algorithm where node = move, and max-player = enemyAI
-def minimax(moves,depth,max_player):
+# (includes alpha-beta pruning)
+def minimax(moves,depth,max_player,a,b):
 	global board;
 	if(depth == 0 or in_checkmate(enemy_team) or in_checkmate(player_team) or in_stalemate()):
 		return (None , evaluate_board(max_player));
@@ -534,40 +536,62 @@ def minimax(moves,depth,max_player):
 		best_value = -1000000000;
 		best_move = None;
 		for key in moves.keys():
+			find = False;
+			
 			for value in moves[key]:
 				origin = deepcopy(board);
 				move = (key,value);
 				board[value[0]][value[1]] = board[key[0]][key[1]];
 				board[key[0]][key[1]] = None;
+				board[value[0]][value[1]].has_moved = True;
 				new_moves = get_all_moves(flip_team(max_player));
-				v = minimax(new_moves,depth-1,flip_team(max_player))[1];
+				v = minimax(new_moves,depth-1,flip_team(max_player),a,b)[1];
 				board = deepcopy(origin);
 				if(v > best_value):
 					best_value = v;
 					best_move = move;
+				a = max(a,best_value);
+				if(b <= a):
+					find = True;
+					break;
+				
+			if(find):
+				break;
+			
 		return (best_move , best_value);
 	
 	if(max_player == player_team):
 		best_value = 1000000000;
 		best_move = None;
 		for key in moves.keys():
+			find = False;
+			
 			for value in moves[key]:
 				origin = deepcopy(board);
 				move = (key,value);
 				board[value[0]][value[1]] = board[key[0]][key[1]];
 				board[key[0]][key[1]] = None;
+				board[value[0]][value[1]].has_moved = True;
 				new_moves = get_all_moves(flip_team(max_player));
-				v = minimax(new_moves,depth-1,flip_team(max_player))[1];
+				v = minimax(new_moves,depth-1,flip_team(max_player),a,b)[1];
 				board = deepcopy(origin);
 				if(v < best_value):
 					best_value = v;
 					best_move = move;
+				b = min(b,best_value);
+				if(b <= a):
+					find = True;
+					break;
+				
+			if(find):
+				break;
+			
 		return (best_move , best_value);
 
 
 # move selection function which uses minimax to determine best course of action
 def get_move_minimax(tteam):
-	return minimax(get_all_moves(tteam),2,tteam)[0];
+	return minimax(get_all_moves(tteam),3,tteam,-1000000000,1000000000)[0];
 	
 # --------------------------------------------------------------------------
 

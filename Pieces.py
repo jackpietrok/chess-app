@@ -63,7 +63,7 @@ class Rook(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = False;
-		self.value = 5;
+		self.value = 5.1;
 	
 	def get_moves(self,board,pos):
 		arr = [];
@@ -114,7 +114,7 @@ class Bishop(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = False;
-		self.value = 3;
+		self.value = 3.3;
 		
 	def add_tuple(self,xs,y1,y2):
 		ys = (y1,y2);
@@ -178,7 +178,7 @@ class Kight(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = True;
-		self.value = 3;
+		self.value = 3.2;
 	
 	def get_moves(self,board,pos):
 		arr = [];
@@ -209,7 +209,7 @@ class Queen(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = False;
-		self.value = 10;
+		self.value = 8.8;
 	
 	def add_tuple(self,xs,y1,y2):
 		ys = (y1,y2);

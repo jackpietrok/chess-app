@@ -11,6 +11,12 @@ white_king_pos = (0,4);
 black_king_pos = (7,4);
 board = [];
 
+# Value Constants (piece values can be changed in Pieces.py)
+PASSED_PAWN = 1.05;
+CONNECTED_PAWN = 1.15;
+ISOLATED_PAWN = 1.30;
+PASSED_CONNECTED_PAWN = 1.55;
+
 # Initialize Game Stats and Board
 def initialize():
 	global player_team;
@@ -342,6 +348,51 @@ def get_all_moves(tteam):
 	return dic;
 
 
+# returns whether or not the given position is "passed"
+# Note: only applies to PAWNS (all else returns False)
+def is_passed(pos):
+	if(board[pos[0]][pos[1]] == None or board[pos[0]][pos[1]].to_string != "pawn"):
+		return False;
+	if(board[pos[0]][pos[1]].team == "white"):
+		for row in range(0,pos[0]):
+			if(board[row][pos[1]].to_string() == "pawn"):
+				return False;
+		return True;
+	else:
+		for row in range(pos[0]+1,8):
+			if(board[row][pos[1]].to_string() == "pawn"):
+				return False;
+		return True;
+	
+
+# returns whether or not the given position is connected
+# Note: only applies to PAWNS (all else returns False)
+def is_connected(pos):
+	if(board[pos[0]][pos[1]] == None or board[pos[0]][pos[1]].to_string != "pawn"):
+		return False;
+	for i in range(0,8):
+		for j in range(pos[1]-1,pos[1]+1):
+			if(j >= 0 and j <= 7 and j != pos[1]):
+				if(board[i][j] != None and board[i][j].team == board[pos[0]][pos[1]].team and board[i][j].to_string() == "pawn"):
+					return True;
+	return False;			
+
+
+# returns a value multiplier in accordance with the passed PAWN position's relative structure
+# consideres if the pawn is connected, passed, isolated, or both passed and connected
+# Note: only applies to PAWNS (all else returns False)
+def pawn_multiplier(pos)
+	if(board[pos[0]][pos[1]] == None or board[pos[0]][pos[1]].to_string != "pawn"):
+		return False;
+	if(is_connected(pos) and is_passed(pos)):
+		return PASSED_CONNECTED_PAWN;
+	elif(is_connected(pos)):
+		return CONNECTED_PAWN;
+	elif(is_passed(pos)):
+		return PASSED_PAWN;
+	else:
+		return ISOLATED_PAWN;
+
 # returns the team opposite to the given team
 def flip_team(team):
 	eteam = "white";
@@ -436,26 +487,42 @@ def in_stalemate():
 		return True;
 	
 	
+	
 # heuristic evaluation function which examines the entire board
-# + considers: piece-value, check, 
+# + considers: piece-value, check, checkmate, pawn structure, ...
+#--------------------------------------------------------------------------------------------------------------
 def evaluate_board(tteam):
+	
+	# --- Checkmate ---
 	analyze_check();
 	if(in_checkmate(enemy_team)):
 		return -1000000000;
 	if(in_checkmate(player_team)):
 		return 1000000000;
+	
+	# --- Check ---
 	tot = 0;
 	if((tteam == "black" and black_check) or (tteam == "white" and white_check)):
 		tot -= 0.3;
 	elif((flip_team(tteam) == "black" and black_check) or (flip_team(tteam) == "white" and white_check)):
 		tot += 0.3;
+		
+	# --- Base Piece Values ---
 	for i in range(0,8):
 		for j in range(0,8):
+			val = board[i][j].value;
+				if(board[i][j].to_string() == "pawn"):
+					val *= pawn_multiplier((i,j));
+			
 			if(board[i][j] != None and board[i][j].team == flip_team(tteam)):
-				tot -= board[i][j].value;
+				tot -= val
 			if(board[i][j] != None and board[i][j].team == tteam):
-				tot += board[i][j].value;
+				tot += val
+				
 	return tot;
+#--------------------------------------------------------------------------------------------------------------
+
+	
 	
 # recursive minimax algorithm where node = move, and max-player = enemyAI
 def minimax(moves,depth,max_player):

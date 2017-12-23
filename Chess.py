@@ -11,12 +11,6 @@ white_king_pos = (0,4);
 black_king_pos = (7,4);
 board = [];
 
-# Value Constants (piece values can be changed in Pieces.py)
-PASSED_PAWN = 1.05;
-CONNECTED_PAWN = 1.15;
-ISOLATED_PAWN = 1.30;
-PASSED_CONNECTED_PAWN = 1.55;
-
 # Initialize Game Stats and Board
 def initialize():
 	global player_team;
@@ -385,13 +379,67 @@ def pawn_multiplier(pos):
 	if(board[pos[0]][pos[1]] == None or board[pos[0]][pos[1]].to_string != "pawn"):
 		return False;
 	if(is_connected(pos) and is_passed(pos)):
-		return PASSED_CONNECTED_PAWN;
+		if(board[pos[0]][pos[1]].team == "black"):
+			if(pos[0] == 3):
+				return 1.55;
+			elif(pos[0] == 4):
+				return 2.3;
+			elif(pos[0] == 5):
+				return 3.5;
+		else:
+			if(pos[0] == 4):
+				return 1.55;
+			elif(pos[0] == 3):
+				return 2.3;
+			elif(pos[0] == 2):
+				return 3.5;
 	elif(is_connected(pos)):
-		return CONNECTED_PAWN;
+		if(board[pos[0]][pos[1]].team == "black"):
+			if(pos[0] == 3):
+				return 1.15;
+			elif(pos[0] == 4):
+				return 1.35;
+			elif(pos[0] == 5):
+				return 1.45;
+		else:
+			if(pos[0] == 4):
+				return 1.15;
+			elif(pos[0] == 3):
+				return 1.35;
+			elif(pos[0] == 2):
+				return 1.45;
 	elif(is_passed(pos)):
-		return PASSED_PAWN;
+		if(board[pos[0]][pos[1]].team == "black"):
+			if(pos[0] == 3):
+				return 1.3;
+			elif(pos[0] == 4):
+				return 1.55;
+			elif(pos[0] == 5):
+				return 3.0;
+		else:
+			if(pos[0] == 4):
+				return 1.3;
+			elif(pos[0] == 3):
+				return 1.55;
+			elif(pos[0] == 2):
+				return 3.0;
 	else:
-		return ISOLATED_PAWN;
+		if(board[pos[0]][pos[1]].team == "black"):
+			if(pos[0] == 3):
+				return 1.05;
+			elif(pos[0] == 4):
+				return 1.3;
+			elif(pos[0] == 5):
+				return 2.1;
+		else:
+			if(pos[0] == 4):
+				return 1.05;
+			elif(pos[0] == 3):
+				return 1.3;
+			elif(pos[0] == 2):
+				return 2.1;
+	return 1;
+
 
 # returns the team opposite to the given team
 def flip_team(team):
@@ -512,13 +560,13 @@ def evaluate_board(tteam):
 		for j in range(0,8):
 			if(board[i][j] != None and board[i][j].team == flip_team(tteam)):
 				val = board[i][j].value;
-				# if(board[i][j].to_string() == "pawn"):
-				# 	val *= pawn_multiplier((i,j));
+				if(board[i][j].to_string() == "pawn"):
+					val *= pawn_multiplier((i,j));
 				tot -= val;
 			if(board[i][j] != None and board[i][j].team == tteam):
 				val = board[i][j].value;
-				# if(board[i][j].to_string() == "pawn"):
-				# 	val *= pawn_multiplier((i,j));
+				if(board[i][j].to_string() == "pawn"):
+					val *= pawn_multiplier((i,j));
 				tot += val;
 
 	return tot;

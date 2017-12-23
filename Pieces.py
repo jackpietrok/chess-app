@@ -301,7 +301,7 @@ class King(Piece):
 	def __init__(self,te):
 		Piece.__init__(self,te);
 		self.can_jump = True;
-		self.value = 4;
+		self.value = 4.0;
 	
 	def get_moves(self,board,pos):
 		arr = [];

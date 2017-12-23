@@ -512,14 +512,15 @@ def evaluate_board(tteam):
 		for j in range(0,8):
 			if(board[i][j] != None and board[i][j].team == flip_team(tteam)):
 				val = board[i][j].value;
-				if(board[i][j].to_string() == "pawn"):
-					val *= pawn_multiplier((i,j));
+				# if(board[i][j].to_string() == "pawn"):
+				# 	val *= pawn_multiplier((i,j));
 				tot -= val;
 			if(board[i][j] != None and board[i][j].team == tteam):
 				val = board[i][j].value;
-				if(board[i][j].to_string() == "pawn"):
-					val *= pawn_multiplier((i,j));
+				# if(board[i][j].to_string() == "pawn"):
+				# 	val *= pawn_multiplier((i,j));
 				tot += val;
+
 	return tot;
 #--------------------------------------------------------------------------------------------------------------
 
@@ -591,7 +592,7 @@ def minimax(moves,depth,max_player,a,b):
 
 # move selection function which uses minimax to determine best course of action
 def get_move_minimax(tteam):
-	return minimax(get_all_moves(tteam),3,tteam,-1000000000,1000000000)[0];
+	return minimax(get_all_moves(tteam),2,tteam,-1000000000,1000000000)[0];
 	
 # --------------------------------------------------------------------------
 

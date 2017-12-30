@@ -541,6 +541,9 @@ def in_stalemate():
 #--------------------------------------------------------------------------------------------------------------
 def evaluate_board(tteam):
 	
+	all_moves = get_all_moves(tteam);
+	opp_moves = get_all_moves(flip_team(tteam));
+	
 	# --- Checkmate ---
 	analyze_check();
 	if(in_checkmate(enemy_team)):
@@ -560,19 +563,46 @@ def evaluate_board(tteam):
 		for j in range(0,8):
 			if(board[i][j] != None and board[i][j].team == flip_team(tteam)):
 				val = board[i][j].value;
-				if(board[i][j].to_string() == "pawn"):
-					val *= pawn_multiplier((i,j));
+				# if(board[i][j].to_string() == "pawn"):
+				# 	val *= pawn_multiplier((i,j));
 				tot -= val;
 			if(board[i][j] != None and board[i][j].team == tteam):
 				val = board[i][j].value;
-				if(board[i][j].to_string() == "pawn"):
-					val *= pawn_multiplier((i,j));
+				# if(board[i][j].to_string() == "pawn"):
+				# 	val *= pawn_multiplier((i,j));
 				tot += val;
+	
+	print(tot);
+	# --- Center Control and Mobility ---
+	for key in all_moves.keys():
+		tot += (0.01 * len(all_moves[key]));
+		if(board[key[0]][key[1]].to_string() == "pawn"):
+			for item in all_moves[key]:
+				if(item == (3,3) or item == (3,4) or item == (4,3) or item == (4,4)):
+					tot += 0.1;
+					break;
+		else:
+			for item in all_moves[key]:
+				if(item == (3,3) or item == (3,4) or item == (4,3) or item == (4,4)):
+					tot += 0.05;
+					break;
+	for key in opp_moves.keys():
+		tot -= (0.01 * len(opp_moves[key]));
+		if(board[key[0]][key[1]].to_string() == "pawn"):
+			for item in opp_moves[key]:
+				if(item == (3,3) or item == (3,4) or item == (4,3) or item == (4,4)):
+					tot -= 0.1;
+					break;
+		else:
+			for item in opp_moves[key]:
+				if(item == (3,3) or item == (3,4) or item == (4,3) or item == (4,4)):
+					tot -= 0.05;
+					break;
 
 	return tot;
 #--------------------------------------------------------------------------------------------------------------
 
-
+	
 	
 # recursive minimax algorithm where node = move, and max-player = enemyAI
 # (includes alpha-beta pruning)
@@ -651,7 +681,7 @@ def main():
 	endgame = False;
 	initialize();
 	print("");
-	print("Random chess engine: by Jack Pietrok");
+	print("basic chess engine: by Jack P.");
 	print("------------------------------------");
 	print("+ Make moves by entering in format: A# B#");
 	print("+ (an example move would be 'C2 D4')");
@@ -722,7 +752,7 @@ def main():
 			break;
 		
 		if((white_check and player_team == "white") or (black_check and player_team == "black")):
-			print("Check!")
+			print("Check!");
 
 
 # Call Main

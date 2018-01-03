@@ -572,7 +572,6 @@ def evaluate_board(tteam):
 				# 	val *= pawn_multiplier((i,j));
 				tot += val;
 	
-	print(tot);
 	# --- Center Control and Mobility ---
 	for key in all_moves.keys():
 		tot += (0.01 * len(all_moves[key]));
@@ -608,9 +607,12 @@ def evaluate_board(tteam):
 # (includes alpha-beta pruning)
 def minimax(moves,depth,max_player,a,b):
 	global board;
+	
+	# base case
 	if(depth == 0 or in_checkmate(enemy_team) or in_checkmate(player_team) or in_stalemate()):
 		return (None , evaluate_board(max_player));
 	
+	# predicting own moves
 	if(max_player == enemy_team):
 		best_value = -1000000000;
 		best_move = None;
@@ -639,6 +641,7 @@ def minimax(moves,depth,max_player,a,b):
 			
 		return (best_move , best_value);
 	
+	# predicting enemy moves
 	if(max_player == player_team):
 		best_value = 1000000000;
 		best_move = None;
@@ -699,6 +702,7 @@ def main():
 			if(not validate_input(player_move)):
 				continue;
 			
+			# make player move
 			pos1 = get_coordinates(player_move.split(" ")[0]);
 			pos2 = get_coordinates(player_move.split(" ")[1]);
 			if(not move_piece(pos1,pos2)):
@@ -707,6 +711,7 @@ def main():
 			# At this point the player's move has been successfully completed
 			board[pos2[0]][pos2[1]].has_moved = True;
 		
+		# check for checkmate
 		analyze_check();
 		if(checkmate()):
 			display_board(board);
@@ -745,12 +750,14 @@ def main():
 		board[enemy_move[1][0]][enemy_move[1][1]].has_moved = True;
 		print("+ Enemy moves " + board[enemy_move[1][0]][enemy_move[1][1]].to_string() + " to " + get_stringform(enemy_move[1]))
 		
+		# check for checkmate or stalemate
 		analyze_check();
 		if(checkmate()):
 			display_board(board);
 			endgame = True;
 			break;
 		
+		# print if in check
 		if((white_check and player_team == "white") or (black_check and player_team == "black")):
 			print("Check!");
 
